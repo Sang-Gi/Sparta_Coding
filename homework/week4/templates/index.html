@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+
+    <title>나만의 쇼핑몰</title>
+
+    <meta property="og:title" content="원페이지 쇼핑몰" />
+    <meta property="og:description" content="와 이게 OG태그!" />
+    <meta property="og:image" content="{{ url_for('static', filename='ogimage.png') }}" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+        .item-img {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            background-image: url("http://img.danawa.com/prod_img/500000/628/603/img/4603628_1.jpg?_v=20210115181331");
+            background-position: center;
+            background-size: cover;
+        }
+
+        .price {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .item-desc {
+            width: 500px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .item-order {
+            width: 500px;
+        }
+
+        .btn-order {
+            margin: auto;
+            width: 100px;
+            display: block;
+            font-style: bolder;
+        }
+        .wrap {
+            width: 500px;
+            margin: auto;
+            margin-top: 50px;
+        }
+        .dollar {
+            color: blue;
+        }
+
+        .orders {
+            width: 500px;
+            margin: 0 auto;
+            padding-top: 10px;
+        }
+    
+
+    </style>
+
+    <script>
+        // 시작 동시에 요청
+        $(document).ready(function(){
+            rate_change();
+            view_orders();
+        });
+
+        // 주문 버튼
+        function order(){
+            if (custom-select.value == 5) {
+                alert('해당 개수는 품절입니다!')
+            } else {
+                alert('주문이 완료되었습니다!');
+            }
+            
+
+        }
+        
+        // 환율 변경
+        function rate_change() {
+            $.ajax({
+                    type: "GET",
+                    url: "http://spartacodingclub.shop/sparta_api/rate",
+                    data: {},
+                    success: function(response){
+                        let sil_rate = response['rate'];
+                        $('#runtime').text(sil_rate);
+                    }
+                })
+        }
+
+        // POST
+        function save_order() {
+                let name = $('#name').val()
+                let value = $('#inputGroupSelect01').val()
+                let address = $('#address').val()
+                let p_number = $('#phone_number').val()
+
+                $.ajax({
+                    type: "POST",
+                    url: "/order",
+                    data: {name_give: name, value_give: value, address_give: address, p_number_give: p_number},
+                    success: function (response) { // 성공하면
+                        alert(response["msg"]);
+                        window.location.reload()
+                    }
+                })
+            }
+
+        // GET
+        function view_orders() {
+                $.ajax({
+                    type: "GET",
+                    url: "/order",
+                    data: {},
+                    success: function (response) {
+                        let orders = response['all_orders']
+                        for (let i = 0; i < orders.length; i++) {
+                            let name = orders[i]['name']
+                            let value = orders[i]['value']
+                            let address = orders[i]['address']
+                            let p_number = orders[i]['p_number']
+
+                            temp_html = `<tr>                                
+                                            <td>${name}</td>
+                                            <td>${value}</td>
+                                            <td>${address}</td>
+                                            <td>${p_number}</td>
+                                        </tr>`
+                                        $('#orders-box').append(temp_html)
+                        }
+                    }
+                })
+            }
+    </script>
+</head>
+
+<body>
+<div class="wrap">
+    <div class="item-img"></div>
+    <div class="item-desc">
+        <h1>엄청난 마우스 <span class="price">가격:100,000원/개</span></h1>
+        <p>이 마우스로 말할 것 같으면 평생 고장나지 않는 마우스입니다.</p>
+    </div>
+    <div class="dollar">달러 원 환율 : <span id="runtime"></span></div>
+    <div class="item-order">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">주문자이름</span>
+            </div>
+            <input type="text" class="form-control" id="name" >
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="inputGroupSelect01">수량</label>
+            </div>
+            <select class="custom-select" id="inputGroupSelect01">
+                <option selected>-- 수량을 선택하세요 --</option>
+                <option value="1">1개</option>
+                <option value="2">2개</option>
+                <option value="3">3개</option>
+                <option value="4">4개</option>
+                <option value="5">5개 (품절) </option>
+            </select>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">주소</span>
+            </div>
+            <input type="text" class="form-control" id="address" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">전화번호</span>
+            </div>
+            <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" id="phone_number">
+        </div>
+        <button type="button" onclick="save_order()" class="btn btn-primary btn-order" for="custom-select">주문하기</button>
+    </div>
+</div>
+
+<div class="orders">
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">이름</th>
+            <th scope="col">수량</th>
+            <th scope="col">주소</th>
+            <th scope="col">전화번호</th>
+        </tr>
+        </thead>
+        <tbody id="orders-box">
+        </tbody>
+    </table>
+</div>
+</body>
+
+</html>
